@@ -5,7 +5,7 @@
 #include "vertexrecorder.h"
 
 // TODO adjust to number of particles.
-const int NUM_PARTICLES = 4;
+const int NUM_PARTICLES = 5;
 
 PendulumSystem::PendulumSystem()
 {
@@ -22,23 +22,22 @@ PendulumSystem::PendulumSystem()
     // masses
     masses.push_back(1);
     // spring
-    std::vector<std::tuple<unsigned, float, float>> connectedToFirst;
-    connectedToFirst.push_back(std::make_tuple(1, 0.1, 1.3));
+    std::vector<std::vector<float>> connectedToFirst;
+    connectedToFirst.push_back({float(1), 0.1, 1.3});
     springRep.push_back(connectedToFirst);
     
     // TODO 4.3 Extend to multiple particles
-    for (unsigned i=1; i<4; i++){
+    for (unsigned i=1; i<NUM_PARTICLES; i++){
         float random = rand_uniform(-0.5f, 0.5f);
-        Vector3f pos = Vector3f(1,0,0);
-        pos[1] = random;
+        Vector3f pos = Vector3f(1,random,0);
         m_vVecState.push_back(pos);
         m_vVecState.push_back(Vector3f(0,0,0));
         masses.push_back(1);
         
-        std::vector<std::tuple<unsigned, float, float>> connected;
-        connected.push_back(std::make_tuple(i-1, 0.1, 1.3));
+        std::vector<std::vector<float>> connected;
+        connected.push_back({float(i-1), 0.1, 1.3});
         if(i+1 < 4){
-            connected.push_back(std::make_tuple(i+1, 0.1, 1.3));
+            connected.push_back({float(i+1), 0.1, 1.3});
         }
         springRep.push_back(connected);
     }
@@ -70,18 +69,21 @@ std::vector<Vector3f> PendulumSystem::evalF(std::vector<Vector3f> state)
         Vector3f drag = -d * velocity[i];
         Vector3f spring = Vector3f(0);
         for (unsigned j=0; j<springRep[i].size(); j++){
-            unsigned k = std::get<0>(springRep[i][j]);
-            float restLength = std::get<1>(springRep[i][j]);
-            float springConstant = std::get<2>(springRep[i][j]);
+//            unsigned k = std::get<0>(springRep[i][j]);
+//            float restLength = std::get<1>(springRep[i][j]);
+//            float springConstant = std::get<2>(springRep[i][j]);
+            unsigned k = unsigned(springRep[i][j][0]);
+            float restLength = springRep[i][j][1];
+            float springConstant = springRep[i][j][2];
             Vector3f diff = pos[i]-pos[k];
             spring += -springConstant * (diff.abs()-restLength) * diff.normalized();
         }
         Vector3f forces = (gravity + drag + spring);
         f.push_back(forces/masses[i]);
     }
-    for (unsigned i=0; i<f.size(); i++){
-        std::cout<< f[i][0]<< "," << f[i][1] << "," << f[i][2] << std::endl;
-    }
+//    for (unsigned i=0; i<f.size(); i++){
+//        std::cout<< f[i][0]<< "," << f[i][1] << "," << f[i][2] << std::endl;
+//    }
     
     // reset the fixed particle
     f[0] *= 0;

@@ -21,10 +21,11 @@ public:
     // std::vector<Vector3f> m_vVecState;
 private:
     // springRep[i] stores the vector of particles that are connected to particle i
-    std::vector<std::vector<std::tuple<unsigned, float, float>>> springRep;
+    std::vector<std::vector<std::vector<float>>> springRep;
     std::vector<float> masses;
     const Vector3f g = Vector3f(0, -1, 0);
     float d; // drag constant
+   
 };
 
 #endif
